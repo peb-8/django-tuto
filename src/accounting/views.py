@@ -7,10 +7,17 @@ from .forms import SignUpForm
 
 
 def SignupView(request):
-    form = SignUpForm(request.POST)
-    if form.is_valid():
-        form.save()
-        return redirect('login')
+    if request.user.is_authenticated:
+        return redirect('home')
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.info(request, 'Successfully registered.')
+            return redirect('login')
+        else:
+            messages.error(request, 'Cannot sign up.')
+            return redirect('signup')
     else:
         form = SignUpForm()
     return render(request, 'registration/signup.html', {'form': form})
@@ -22,9 +29,7 @@ def LoginView(request):
     if request.method == 'POST':
         form = AuthenticationForm(request=request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
+            user = authenticate(**form.cleaned_data)
             if user is not None:
                 login(request, user)
                 messages.info(request, 'Successfully logged in.')
@@ -34,10 +39,10 @@ def LoginView(request):
             return redirect('login')
     else:
         form = AuthenticationForm()
-        return render(request, 'registration/login.html', {'form': form})
+    return render(request, 'registration/login.html', {'form': form})
 
 
 def LogoutView(request):
     logout(request)
-    messages.info(request, "You have successfully logged out.")
+    messages.info(request, "Successfully logged out.")
     return redirect("home")
