@@ -1,8 +1,10 @@
-from django.urls import path, include
-from .views import SignupView, HomeView
+from django.urls import path
+from .views import LoginView, SignupView, LogoutView
+from django.views.generic import TemplateView
 
 urlpatterns = [
-    path("", include("django.contrib.auth.urls")),
-    path("", HomeView),
-    path("signup/", SignupView, name="signup")
+    path("", TemplateView.as_view(template_name='home.html'), name="home"),
+    path("login/", LoginView, name="login"),
+    path("signup/", SignupView, name="signup"),
+    path("logout/", LogoutView, name="logout")
 ]
